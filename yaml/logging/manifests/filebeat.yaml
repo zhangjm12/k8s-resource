@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat
+  namespace: logging
+  labels:
+    component: filebeat
+data:
+  filebeat.yml: |
+    filebeat.prospectors:
+      - input_type: log
+        paths:
+          - /var/log/*.log
+
+      - input_type: log
+        json.keys_under_root: false
+        paths:
+          - /var/lib/docker/containers/*/*-json.log
+
+    output.elasticsearch:
+      hosts: ["elasticsearch:9200"]
+
+      template.name: "filebeat"
+      template.path: "filebeat.template.json"
+      template.overwrite: false
+
+    # Sets log level. The default log level is error.
+    # Available log levels are: critical, error, warning, info, debug
+    logging.level: info
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: logging
+spec:
+  template:
+    metadata:
+      labels:
+        component: filebeat
+    spec:
+      containers:
+      - image: giantswarm/filebeat
+        name: filebeat
+        env:
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+        volumeMounts:
+        - name: containers
+          mountPath: /var/lib/docker/containers
+        # - name: hostlog
+        #   mountPath: /varlog
+        - name: config-volume
+          mountPath: /etc/filebeat
+      volumes:
+      - name: containers
+        hostPath:
+          path: /var/lib/docker/containers
+      # - name: hostlog
+      #   hostPath:
+      #     path: /var/log
+      - name: config-volume
+        configMap:
+          name: filebeat
