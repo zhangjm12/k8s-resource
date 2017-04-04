@@ -6,15 +6,15 @@ metadata:
     ingress.kubernetes.io/auth-type: basic
     ingress.kubernetes.io/auth-secret: basic-auth
     ingress.kubernetes.io/auth-realm: "Authentication Required - cloud"
-  name: dashboard
+  name: grafana
   namespace: kube-system
 spec:
   rules:
-    - host: dashboard.k8s.myvm.info
+    - host: grafana.v16.myvm.info
       http:
         paths:
           - backend:
-              serviceName: kubernetes-dashboard
+              serviceName: monitoring-grafana
               servicePort: 80
             path: /
 

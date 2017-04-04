@@ -10,7 +10,7 @@ metadata:
   namespace: kube-system
 spec:
   rules:
-    - host: dashboard.k8s.myvm.info
+    - host: dashboard.v16.myvm.info
       http:
         paths:
           - backend:
