@@ -12,6 +12,14 @@ spec:
       labels:
         k8s-app: default-http-backend
     spec:
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      # Only run this pod on the master.
+      nodeSelector:
+        kubeadm.alpha.kubernetes.io/role: master
       terminationGracePeriodSeconds: 60
       containers:
       - name: default-http-backend
@@ -79,7 +87,7 @@ spec:
       hostNetwork: true
       terminationGracePeriodSeconds: 60
       containers:
-      - image: gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.3
+      - image: gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.7
         name: nginx-ingress-controller
         readinessProbe:
           httpGet:
